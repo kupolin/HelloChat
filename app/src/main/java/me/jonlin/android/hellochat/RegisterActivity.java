@@ -16,7 +16,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.AuthResult;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -27,15 +30,27 @@ public class RegisterActivity extends AppCompatActivity {
 
     // TODO: Add member variables here:
     // UI references.
+    // autocomplete edit text view
     private AutoCompleteTextView mEmailView;
     private AutoCompleteTextView mUsernameView;
     private EditText mPasswordView;
     private EditText mConfirmPasswordView;
 
     // Firebase instance variables
+    private FirebaseAuth mAuth;
 
+    private String emailStr;
+    private String passwordStr;
 
+    private void log(String str)
+    {
+        Log.d(this.getClass().getSimpleName(), str);
+    }
 
+    private void toast(String msg)
+    {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,13 +73,12 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        // TODO: Get hold of an instance of FirebaseAuth
-
-
+        mAuth = FirebaseAuth.getInstance();
     }
 
     // Executed when Sign Up button is pressed.
     public void signUp(View v) {
+        Toast.makeText(this, "hello!!!", Toast.LENGTH_SHORT).show();
         attemptRegistration();
     }
 
@@ -104,30 +118,66 @@ public class RegisterActivity extends AppCompatActivity {
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // TODO: Call create FirebaseUser() here
-
+            toast("createFireBaseUser() called");
+            createFirebaseUser();
         }
     }
 
     private boolean isEmailValid(String email) {
-        // You can add more checking logic here.
         return email.contains("@");
     }
 
-    private boolean isPasswordValid(String password) {
-        //TODO: Add own logic to check for a valid password (minimum 6 characters)
-        return true;
+    // 6 character minimum password
+    private boolean isPasswordValid(String password)
+    {
+        String confPass = mConfirmPasswordView.getText().toString();
+        log("password: " + password + "| confirm password: " + confPass );
+        return password.length() > 6 && password.equals(confPass);
     }
 
-    // TODO: Create a Firebase user
+    private void createFirebaseUser()
+    {
+        log("createFireBaseUser called 140");
+        this.emailStr = this.mEmailView.getText().toString();
+        this.passwordStr = this.mPasswordView.getText().toString();
+        if (isPasswordValid(passwordStr))
+        {
+            // check for response
+            mAuth.createUserWithEmailAndPassword(this.emailStr, passwordStr).addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+            {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task)
+                {
+                    log("OnComplete called 151");
+                    toast("onComplete, called");
+                    //User account creation can fail if the account already exists or the password is invalid.
+                    if(!task.isSuccessful())
+                    {
+                        Exception e = task.getException();
+                        if(e != null)
+                            showErrorDialog(e.getLocalizedMessage());
+
+//                        log(task.getException().getLocalizedMessage());
+//                        log(task.getException().getMessage());
+//                        toast(task.getException().toString());
+                        toast("user creation failed, called");
+                        log("user creation failed");
+                    }
+                }
+            });
+        }
+    }
 
 
-    // TODO: Save the display name to Shared Preferences
-
-
-    // TODO: Create an alert dialog to show in case registration failed
-
-
-
-
+    private void showErrorDialog(String message)
+    {
+        log("showErrorDialog called");
+        log("msg" + message);
+        new AlertDialog.Builder(this)
+            .setTitle("Error")
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok, null)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .show();
+    }
 }
