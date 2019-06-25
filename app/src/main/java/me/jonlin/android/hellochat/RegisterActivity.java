@@ -163,11 +163,26 @@ public class RegisterActivity extends AppCompatActivity {
                         toast("user creation failed, called");
                         log("user creation failed");
                     }
+                    else
+                    {
+                        //TODO: startActivityWithResult
+                        saveDisplayName();
+                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                        finish();
+                        startActivity(intent);
+                    }
                 }
             });
         }
     }
 
+    private void saveDisplayName()
+    {
+        String displayName = mUsernameView.getText().toString();
+        SharedPreferences.Editor pref = getSharedPreferences(CHAT_PREFS, MODE_PRIVATE).edit();
+        pref.putString(DISPLAY_NAME_KEY, displayName)
+            .apply();
+    }
 
     private void showErrorDialog(String message)
     {

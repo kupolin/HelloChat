@@ -9,11 +9,17 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -22,6 +28,8 @@ public class LoginActivity extends AppCompatActivity {
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,21 +42,23 @@ public class LoginActivity extends AppCompatActivity {
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.integer.login || id == EditorInfo.IME_NULL) {
+
+                log("passView " + "setOnEditorActionListener - id: " + id + "IME_NULL: "+ EditorInfo.IME_NULL );
+
+                if (id == R.integer.login || id == EditorInfo.IME_NULL || id == EditorInfo.IME_ACTION_DONE)
+                {
+                    log("attemptlogin in login_pass view");
                     attemptLogin();
                     return true;
                 }
                 return false;
             }
         });
-
-        // TODO: Grab an instance of FirebaseAuth
-
     }
 
     // Executed when Sign in button pressed
     public void signInExistingUser(View v)   {
-        // TODO: Call attemptLogin() here
+        attemptLogin();
 
     }
 
@@ -59,18 +69,73 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // TODO: Complete the attemptLogin() method
-    private void attemptLogin() {
-
-
-        // TODO: Use FirebaseAuth to sign in with email & password
-
-
-
+    private void log(String str)
+    {
+        Log.d(this.getClass().getSimpleName() + "d", str);
     }
 
-    // TODO: Show error on screen with an alert dialog
+    private void toast(String msg)
+    {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
 
+    /*
+https://stackoverflow.com/questions/43444945/firebase-auth-cant-instantiate-authcredential
+For email :
 
+AuthCredential credential = EmailAuthProvider
+.getCredential("user@example.com", "password1234");
+
+AuthCredential credential = GoogleAuthProvider
+.getCredential(acct.getIdToken(), null);
+For facebook you need facebook AccessToken getToken() docs
+
+AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+ */
+    private void attemptLogin()
+    {
+        log("AttemptLogin() called");
+
+        String emailStr = mEmailView.getText().toString();
+        String passStr = this.mPasswordView.getText().toString();
+
+        Intent intent = new Intent(LoginActivity.this, MainChatActivity.class);
+
+        if (emailStr.isEmpty() || passStr.isEmpty())
+            return;
+
+        mAuth.signInWithEmailAndPassword(emailStr, passStr)
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+            {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task)
+                {
+                    log("signInWithEmail() onComplete: " + task.isSuccessful());
+
+                    if (!task.isSuccessful())
+                    {
+                        log("Problem signing in: " + task.getException().getMessage());
+                        showErrorDialog(task.getException().getLocalizedMessage());
+                    } else
+                    {
+                        Intent intent = new Intent(LoginActivity.this, MainChatActivity.class);
+                        finish();
+                        startActivity(intent);
+                    }
+                }
+            });
+    }
+
+    private void showErrorDialog(String message)
+    {
+        log("showErrorDialog called");
+        log("msg" + message);
+        new AlertDialog.Builder(this)
+            .setTitle("Error")
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok, null)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .show();
+    }
 
 }
