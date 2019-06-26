@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (id == R.integer.login || id == EditorInfo.IME_NULL || id == EditorInfo.IME_ACTION_DONE)
                 {
-                    log("attemptlogin in login_pass view");
+                    log("attempt login in login_pass view");
                     attemptLogin();
                     return true;
                 }
@@ -101,8 +101,12 @@ AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken())
 
         Intent intent = new Intent(LoginActivity.this, MainChatActivity.class);
 
-        emailStr = "qwerty@test.com";
-        passStr = "qwertyu";
+//        emailStr = "qwerty@test.com";
+//        passStr = "qwertyu";
+
+//        emailStr = "test@gmail.com";
+//        passStr = "test123";
+
         if (emailStr.isEmpty() || passStr.isEmpty())
             return;
 
@@ -139,5 +143,4 @@ AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken())
             .setIcon(android.R.drawable.ic_dialog_alert)
             .show();
     }
-
 }

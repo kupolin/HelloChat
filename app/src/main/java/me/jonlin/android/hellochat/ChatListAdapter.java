@@ -131,7 +131,7 @@ public class ChatListAdapter extends BaseAdapter
 
 
         final InstantMessage message = getItem(i);
-        Log.d(this.getClass().getSimpleName(), "messaghe: " + message.getMessage());
+        Log.d(this.getClass().getSimpleName(), "message: " + message.getMessage());
 
         final ViewHolder holder = (ViewHolder) view.getTag();
 

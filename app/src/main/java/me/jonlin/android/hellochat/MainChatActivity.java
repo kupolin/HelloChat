@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -68,8 +69,13 @@ public class MainChatActivity extends AppCompatActivity
 
     private void setupDisplayName()
     {
+        /*
         SharedPreferences prefs = getSharedPreferences(RegisterActivity.CHAT_PREFS, MODE_PRIVATE);
         mDisplayName = prefs.getString(RegisterActivity.DISPLAY_NAME_KEY, null);
+        */
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        mDisplayName = user.getDisplayName();
+
         if(mDisplayName == null)
             mDisplayName = "Anonymous";
     }

@@ -20,6 +20,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -178,10 +181,35 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void saveDisplayName()
     {
+        // save into current logged in user.
+        // can store information into based on user. Normally used for profiles
+
+        FirebaseUser user = mAuth.getCurrentUser();
         String displayName = mUsernameView.getText().toString();
+
+        //user gotta be logged in because saveDisplayName called after creation of userName.
+        if(user != null)
+        {
+            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(displayName)
+                .build();
+
+            user.updateProfile(profileUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>()
+                {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task)
+                    {
+                        if(task.isSuccessful())
+                            Log.d("mainchat", "user name udpated");
+                    }
+                });
+        }
+        /*
         SharedPreferences.Editor pref = getSharedPreferences(CHAT_PREFS, MODE_PRIVATE).edit();
         pref.putString(DISPLAY_NAME_KEY, displayName)
             .apply();
+            */
     }
 
     private void showErrorDialog(String message)
