@@ -101,6 +101,8 @@ AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken())
 
         Intent intent = new Intent(LoginActivity.this, MainChatActivity.class);
 
+        emailStr = "qwerty@test.com";
+        passStr = "qwertyu";
         if (emailStr.isEmpty() || passStr.isEmpty())
             return;
 
